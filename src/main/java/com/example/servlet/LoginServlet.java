@@ -53,7 +53,7 @@ public class LoginServlet extends HttpServlet {
                             .filter(item -> item.equalsIgnoreCase(login))
                             .findFirst();
 
-            if (username.isPresent() && password != null && password.isEmpty()) {
+            if (username.isPresent() && password != null && !password.isEmpty()) {
                 return username.get();
             }
         }
