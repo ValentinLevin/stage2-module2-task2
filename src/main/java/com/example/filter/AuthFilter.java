@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @WebFilter(urlPatterns = "/user/*")
 public class AuthFilter extends HttpFilter {
-    private Users users;
+    private final Users users;
 
     public AuthFilter() {
         this.users = Users.getInstance();
@@ -21,17 +21,11 @@ public class AuthFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
-        String username = null;
+        HttpSession session = req.getSession();
+        String username = (String) session.getAttribute("user");
 
-        HttpSession session = req.getSession(false);
-        if (session != null) {
-            username = (String) session.getAttribute("user");
-        }
-
-        if (username == null || !this.users.getUsers().contains(username)) {
-            if (session != null) {
-                session.removeAttribute("user");
-            }
+        if (!this.users.getUsers().contains(username)) {
+            session.removeAttribute("user");
             res.sendRedirect(req.getContextPath() + "/login");
         } else {
             chain.doFilter(req, res);
