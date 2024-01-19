@@ -1,5 +1,7 @@
 package com.example.filter;
 
+import com.example.Users;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebFilter;
@@ -11,6 +13,12 @@ import java.io.IOException;
 
 @WebFilter(urlPatterns = "/user/*")
 public class AuthFilter extends HttpFilter {
+    private Users users;
+
+    public AuthFilter() {
+        this.users = Users.getInstance();
+    }
+
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String username = null;
@@ -20,7 +28,10 @@ public class AuthFilter extends HttpFilter {
             username = (String) session.getAttribute("user");
         }
 
-        if (username == null) {
+        if (username == null || !this.users.getUsers().contains(username)) {
+            if (session != null) {
+                session.removeAttribute("user");
+            }
             res.sendRedirect(req.getContextPath() + "/login");
         } else {
             chain.doFilter(req, res);

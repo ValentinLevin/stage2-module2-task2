@@ -22,8 +22,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String loggedInUsername = getLoggedInUsername(req);
-        if (loggedInUsername != null) {
+        if (isUserLoggedIn(req)) {
             resp.sendRedirect(req.getContextPath() + "/user/hello.jsp");
         } else {
             RequestDispatcher dispatcher = req.getRequestDispatcher("/login.jsp");
@@ -33,8 +32,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String loggedInUsername = getLoggedInUsername(req);
-        if (loggedInUsername == null) {
+        if (!isUserLoggedIn(req)) {
             String login = req.getParameter("login");
             String newUserName = getUserByUserCredentials(login, "");
 
@@ -42,15 +40,9 @@ public class LoginServlet extends HttpServlet {
                 HttpSession session = req.getSession();
                 session.setAttribute("user", newUserName);
             }
-
-            loggedInUsername = newUserName;
         }
 
-        if (loggedInUsername == null) {
-            doGet(req, resp);
-        } else {
-            resp.sendRedirect(req.getContextPath() + "/user/hello.jsp");
-        }
+        doGet(req, resp);
     }
 
     private String getUserByUserCredentials(String login, String password) {
@@ -67,12 +59,8 @@ public class LoginServlet extends HttpServlet {
         return null;
     }
 
-    private String getLoggedInUsername(HttpServletRequest request) {
+    private boolean isUserLoggedIn(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null) {
-            return (String) session.getAttribute("user");
-        } else {
-            return null;
-        }
+        return session != null && session.getAttribute("user") != null;
     }
 }
