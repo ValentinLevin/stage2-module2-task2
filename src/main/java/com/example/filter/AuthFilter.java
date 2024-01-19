@@ -24,7 +24,7 @@ public class AuthFilter extends HttpFilter {
         HttpSession session = req.getSession();
         String username = (String) session.getAttribute("user");
 
-        if (!this.users.getUsers().contains(username)) {
+        if (this.users.getUsers().stream().noneMatch(item -> item.equalsIgnoreCase(username))) {
             session.removeAttribute("user");
             res.sendRedirect(req.getContextPath() + "/login");
         } else {

@@ -34,12 +34,14 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (!isUserLoggedIn(req)) {
             String login = req.getParameter("login");
-            String newUserName = getUserByUserCredentials(login, "");
+            String password = req.getParameter("password");
+
+            String username = getUserByUserCredentials(login, password);
 
             HttpSession session = req.getSession();
 
-            if (newUserName != null) {
-                session.setAttribute("user", newUserName);
+            if (username != null) {
+                session.setAttribute("user", username);
             }
         }
 
@@ -62,6 +64,7 @@ public class LoginServlet extends HttpServlet {
 
     private boolean isUserLoggedIn(HttpServletRequest request) {
         HttpSession session = request.getSession();
-        return session.getAttribute("user") != null;
+        String username = (String) session.getAttribute("user");
+        return username != null && this.users.getUsers().stream().anyMatch(username::equalsIgnoreCase)  ;
     }
 }
